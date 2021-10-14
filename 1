@@ -1,0 +1,24 @@
+在node和浏览器中才会有开发环境和生产环境的依赖的区别;
+babel.config.js文件的作用是什么？
+Scale怎么使用？
+setRootFS() { // 屏幕自适应,自动根据屏幕宽高比选择根据宽度或者高度自适应,保持始终一屏显示,只用于使用rem单位
+            const deviceWidth = document.documentElement.clientWidth || window.innerWidth || window.pageXOffset
+            const deviceHeight = document.documentElement.clientHeight || window.inneHeight || window.pageYOffset
+
+            let widthScale = deviceWidth / 1600
+            let heightScale = deviceHeight / 900
+            let scale = widthScale > heightScale ? heightScale : widthScale;
+            console.log(scale)
+            this.setRootPxUnit(scale)
+            const fontSize = scale * 20
+            document.documentElement.style.fontSize = fontSize + 'px'
+        }
+require.context（表示的是什么意思）；
+require.context('.', false, /\.json$/)
+表示的是什么意思；
+Option.type==	OWS是什么意思；
+package.json中的file:字段表示什么意思
+"echarts-5.1.1": "file:local_modules/echarts-5.1.1"
+SessionStorage.setItem的储存位置;
+2021年9月26日，目标：会vue3.0语法和TS,以及node，go语言暂时完全放弃，写10个vue组件和react组件，尽量不看视频，直接看文档节省学习时间。然后买一个小型服务器，把东西放进去。
+开发三个小时，讲需求5个小时，一般都在陈诉需求的过程中，代码现在还有学习的余地
