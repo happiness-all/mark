@@ -1,0 +1,27 @@
+import dayjs from "dayjs"
+
+export default {
+  install (Vue) {
+    Vue.filter('filterDate', (val, format = 'YYYY-MM-DD') => {
+      if (!val || /^--(-+)?$/.test(val)) return '--'
+
+      return dayjs(val).format(format)
+    })
+
+    Vue.filter('filterNumber', (val, type) => {
+      if (val) {
+        type === '%' && (val = Number(val).toFixed(2))
+        if (parseInt(val).toString().length > 3) {
+          return Number(val).toLocaleString()
+        } else {
+          return val
+        }
+      } else {
+        if (val === 0 && type === '%') {
+          return '0.00'
+        }
+        return '--'
+      }
+    })
+  }
+}
