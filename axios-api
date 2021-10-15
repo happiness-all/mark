@@ -1,0 +1,235 @@
+import axios from 'axios'
+import qs from 'qs'
+import store from '@/store'
+import pathConfig from './path'
+
+// 请求拦截器
+axios.interceptors.request.use(config => {
+  if (location.href.indexOf('localhost') > -1 || location.href.indexOf('127.0.0.1') > -1) {
+    // token
+    config.headers['gc-authentication'] = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJlMzcwZjQ4OS01MmJkLTRjZDAtOWM2Yi02ZjcwZjQ0OTAzODkiLCJleHAiOjE2MzQxMjYyNDV9.aGflGlTydoAEomdjw9LtfEjMBFQ1agvZoM_y837qjip3eTKTxL0LrrRezwDSeH9hP2Mg8UgUboJLdjeTJ5K_-g'
+    // 租户ID
+    config.headers['tenant-code'] = 'ae1a75db-d2c3-40a2-ab00-14be88b0eb16' // 新黄区环境租户id
+    config.headers['user-info'] = 'eyJ1c2VySWQiOiIyM2ViNzZiNC0xNzc3LTQxNWYtYmMyYy0yZTRkNDNiNjUzZjIiLCJ1c2VybmFtZSI6Inhpb25neXVjYWkiLCJlbmFibGVkIjoxLCJ1c2VyVHlwZSI6MCwidGVuYW50SWQiOiJjMTRmZGRjMi1jOTU4LTQyNTUtYWM0OC1hMjRjMWU3ZmM1NzYifQ=='
+  }else{
+    config.headers['tenant-code'] = top._adoPremise.tenantId
+    config.headers['tenantId'] = top._adoPremise.tenantId
+    config.headers['tenantCode'] = top._adoPremise.tenantId
+  }
+
+  if (!navigator.onLine) {
+    location.reload()
+  }
+  return config
+}, error => {
+    console.error(error)
+  return Promise.reject(error)
+})
+
+// 响应拦截器即异常处理
+axios.interceptors.response.use(response => {
+  return new Promise(function (resolve, reject) {
+    //  readOnly属性不能修改
+    // if (response.request.responseURL) {
+    //   response.request.responseURL = ''
+    // }
+    if (response.data) {
+      if (response.data.resultCode === '090001') {
+        window.onbeforeunload = null
+      }
+      if (response.config.url.indexOf('download') !== -1) {
+        resolve(response)
+      } else {
+        resolve(response.data)
+      }
+    } else {
+      resolve(response)
+    }
+  })
+}, error => {
+  if (error && error.response) {
+    switch (error.response.status) {
+      case 400:
+        error.message = '错误请求'
+        break
+      case 401:
+        error.message = '未授权，请重新登录'
+        break
+      case 403:
+        error.message = '拒绝访问'
+        break
+      case 404:
+        error.message = '请求错误,未找到该资源'
+        break
+      case 405:
+        error.message = '请求方法未允许'
+        break
+      case 408:
+        error.message = '请求超时'
+        break
+      case 500:
+        error.message = '服务器端出错'
+        break
+      case 501:
+        error.message = '网络未实现'
+        break
+      case 502:
+        error.message = '网络错误'
+        break
+      case 503:
+        error.message = '服务不可用'
+        break
+      case 504:
+        error.message = '网络超时'
+        break
+      case 505:
+        error.message = 'http版本不支持该请求'
+        break
+      default:
+        error.message = `连接错误${error.response.status}`
+    }
+  } else {
+    try {
+      error.message = '连接到服务器失败'
+    } catch (err) {
+      return err
+    }
+  }
+  return Promise.resolve(error.response)
+})
+
+const setDefaultHeaders = (resetStatus = false) => {
+  if (resetStatus) {
+    axios.defaults.headers = []
+  }
+  axios.defaults.timeout = 20000
+  axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
+  axios.defaults.headers['Content-Type'] = 'application/json; charset=utf-8'
+}
+
+setDefaultHeaders()
+
+const get = function (options) {
+  return new Promise((resolve, reject) => {
+    axios({
+      method: 'get',
+      url: `${options.url}?${qs.stringify(options.params)}`
+    }).then(res => {
+      resolve(res)
+    }).catch(opt => {
+      reject(opt)
+    })
+  })
+}
+
+const post = function (options) {
+  const headers = options.headers || {...axios.defaults.headers}
+
+  let responseType = axios.defaults.responseType
+  const type = options.type
+
+  let data
+  const {state} = store
+
+  if (state.token) {
+    // headers['X-CSRF-TOKEN'] = state.token
+    headers['X-CSRF-TOKEN'] = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJlMzcwZjQ4OS01MmJkLTRjZDAtOWM2Yi02ZjcwZjQ0OTAzODkiLCJleHAiOjE2MzQyMTI4MDB9.ZYWQ0rq5XnGpXej2mLmtQJxzIZlwN1944oW1-MZur8GQ_brr0x3IJUZubqtORIzyfz09D8sxuS2nUgb9SaJJog'
+
+  }
+  if (headers['Content-Type'] === 'application/x-www-form-urlencoded;charset=UTF-8' || type === 'OWS') {
+    data = qs.stringify(options.params)
+  } else {
+    data = JSON.stringify(options.params)
+  }
+
+  if (options.type === 'DOWNLOAD') {
+    responseType = 'blob'
+  }
+
+  if (options.type === 'LOCAL') {
+    return get(options)
+  }
+
+  return new Promise((resolve, reject) => {
+    axios({
+      method: 'post',
+      timeout: 40000,
+      url: options.url,
+      data,
+      headers,
+      responseType
+    }).then(res => {
+      resolve(res)
+    }).catch((opt) => {
+      reject(opt)
+    })
+  })
+}
+
+const requestAdapter = (config = {}) => {
+  const { urlKey, method, params, ...options } = config
+
+  // 是否为离线demo
+  const isOfflineDemo = process.env.VUE_APP_IS_OFFLINE_DEMO
+  const rawUrl = pathConfig[urlKey]
+
+  if(isOfflineDemo && isOfflineDemo === 'yes') {
+    if(options.paramsHandler && typeof options.paramsHandler === 'function') {
+      const customParams = options.paramsHandler(params, isOfflineDemo)
+      const requestUrl = `${rawUrl}/${customParams}`
+
+      return axios.get(requestUrl)
+    }else {
+      if(params.compCodes && params.compCodes instanceof Array) {
+        const componentCode = params.compCodes.join('_')
+        const requestUrl = `${rawUrl}/${componentCode}/${params.areaCode || ''}.json`
+
+        // 离线demo请求始终为get
+        return axios.get(requestUrl)
+      }else if(
+        params.apiCode &&
+        typeof params.apiCode === 'string' &&
+        params.params &&
+        params.params instanceof Array
+      ) {
+        const apiCode = params.apiCode
+        const areaCode = (params.params.find(({ code }) => code === 'areaCode') || {}).value || 'ZG'
+        const compCode = params.params.filter(({ code }) => code === 'compCode').map(({ value }) => value).join('_')
+        const requestUrl = `${rawUrl}/${apiCode}${compCode ? '/' + compCode : compCode}/${areaCode}.json`
+
+        return axios.get(requestUrl)
+      }else if(params.areaCode && typeof params.areaCode === 'string') {
+        // 地图json请求
+        const areaCode = params.areaCode
+        const requestUrl = `${rawUrl}/${areaCode}.json`
+
+        return axios.get(requestUrl)
+      }
+    }
+  }else {
+    // 正常业务接口请求
+    const realMethod = (method || 'GET').toLowerCase()
+
+    if(realMethod === 'post') {
+      return post({
+        url: rawUrl,
+        params,
+        ...options
+      })
+    }
+
+    if(realMethod === 'get') {
+      return get({
+        url: rawUrl,
+        params,
+        ...options
+      })
+    }
+  }
+}
+
+export default {
+  post,
+  get,
+  requestAdapter
+}
