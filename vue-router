@@ -1,0 +1,2 @@
+TypeError: Cannot read property 'matched' of undefined
+在mian.js上挂载router的名称是固定的，就是router;
