@@ -1,0 +1,214 @@
+function NativePromise() {
+    return this.resolve = null, this.reject = null, this.then = function (e) {
+        return this.resolve = e, this
+    }, this.catch = function (e) {
+        return this.reject = e, this
+    }, this
+}
+window.eventCallBack = function (e) {
+    if (e) {
+        var n = null;
+        if (n = "string" == typeof e ? JSON.parse(e) : e) {
+            var t = window.native.eventMap.get(n.eventName);
+            t && t(n.eventValue)
+        }
+    }
+}, window.native = {}, window.native.eventMap = new Map, window.nativeParameters = function (e, n) {
+    window.native.parameters(e).then(function (e) {
+        n(e)
+    })
+}, window.native.getPosition = function () {
+    var n = new NativePromise;
+    return window.native.executedMethodCallback(null, "getPosition").then(function (e) {
+        "string" == typeof e ? n.resolve(JSON.parse(e)) : n.resolve(e)
+    }).catch(function (e) {
+        n.reject && n.reject(e)
+    }), n
+}, window.native.startLocation = function () {
+    return window.native.executedMethod(null, "startLocation")
+}, window.native.stopLocation = function () {
+    return window.native.executedMethod(null, "stopLocation")
+}, window.native.getLocation = function () {
+    var n = new NativePromise;
+    return window.native.executedMethodCallback(null, "getPosition").then(function (e) {
+        "string" == typeof e ? n.resolve(JSON.parse(e)) : n.resolve(e)
+    }).catch(function (e) {
+        n.reject && n.reject(e)
+    }), n
+}, window.native.phoneStatusListener = function (e) {
+    window.native.addEventListener("phoneStatusListener", e)
+}, window.native.selectPersonListener = function (e) {
+    window.native.addEventListener("selectPersonListener", e)
+}, window.native.getPropertyValue = function (e, n) {
+    var t = new NativePromise;
+    return window.native.executedMethodCallback(e, n).then(function (e) {
+        "string" == typeof e ? t.resolve(JSON.parse(e)) : t.resolve(e)
+    }).catch(function (e) {
+        t.reject && t.reject(e)
+    }), t
+}, window.native.parameters = function (e) {
+    return window.native.getPropertyValue(e, "nativeParameters")
+}, window.native.login = function () {
+    return window.native.parameters("token;tenant_code;tenant_name;language;user_id;user_account;user_name;user_mobile;user_email;user_sub_account;user_sub_account_list;mobile_model")
+}, window.native.regions = function () {
+    return window.native.parameters("regions")
+}, window.native.phoneDesensitization = function (e) {
+    return window.native.getPropertyValue(e, "phoneDesensitization")
+}, window.native.emailDesensitization = function (e) {
+    return window.native.getPropertyValue(e, "emailDesensitization")
+}, window.native.watermarkingText = function () {
+    return window.native.getPropertyValue(null, "watermarkingText")
+}, window.native.share = function (e) {
+    return window.native.executedMethod(e, "share")
+}, window.native.close = function () {
+    return window.native.executedMethod(null, "close")
+}, window.native.open = function (e) {
+    return window.native.executedMethod(e, "open")
+}, window.native.openForResult = function (e) {
+    return e && 4 < e.length && "http" != e.substring(0, 4).toLowerCase() && (e = window.location.origin + e), new Promise(function (n, t) {
+        window.native.executedMethodCallbackAsync(e, "openForResult", "onPageForResult").then(function (e) {
+            n("string" == typeof e ? JSON.parse(e) : e)
+        }).catch(function (e) {
+            t(e)
+        })
+    })
+}, window.native.setResult = function (e) {
+    return "[object String]" !== Object.prototype.toString.call(e) && (e = JSON.stringify(e)), window.native.executedMethod(e, "setResult")
+}, window.native.setTabBarVisibility = function (e) {
+    return window.native.executedMethod(e, "setTabBarVisibility")
+}, window.native.setTitleBarVisibility = function (e) {
+    return window.native.executedMethod(e, "setTitleBarVisibility")
+}, window.native.setTitle = function (e) {
+    return window.native.executedMethod(e, "setTitle")
+}, window.native.getLatLng = function (i, o) {
+    return new Promise(function (n, t) {
+        var e = {
+            duration: i,
+            loop: o
+        };
+        window.native.executedMethodCallbackAsync(JSON.stringify(e), "getLatLng", "setLatLng").then(function (e) {
+            n("string" == typeof e ? JSON.parse(e) : e)
+        }).catch(function (e) {
+            t(e)
+        })
+    })
+}, window.native.addPhoneStatusListener = function (e) {
+    window.native.addEventListener("phoneStatusListener", e)
+}, window.native.clearPhoneStatusListener = function () {
+    window.native.clearEventListener("phoneStatusListener")
+}, window.native.addLocationListener = function (e) {
+    window.native.addEventListener("onLocationListener", e)
+}, window.native.clearPhoneStatusListener = function () {
+    window.native.clearEventListener("onLocationListener")
+}, window.native.addSelectPersonListener = function (e) {
+    window.native.addEventListener("selectPersonListener", e)
+}, window.native.clearSelectPersonListener = function () {
+    window.native.clearEventListener("selectPersonListener")
+}, window.native.startTimingService = function (e) {
+    return window.native.executedMethod(e, "startTimingService")
+}, window.native.stopTimingService = function (e) {
+    return window.native.executedMethod(e, "stopTimingService")
+}, window.native.openFile = function (e) {
+    return window.native.executedMethod(e, "openFile")
+}, window.native.downFile = function (e) {
+    return window.native.getPropertyValue(e, "downFile")
+}, window.native.openApp = function (e) {
+    return window.native.executedMethod(e, "openApp")
+}, window.native.sendUsers = function (e) {
+    return window.native.executedMethod(e, "sendUsers")
+}, window.native.personnelSelection = function (e) {
+    var n = "";
+    void 0 === e && (e = {}), e.auth && (n += "&auth=" + e.auth), e.minLevel && (n += "&minLevel=" + e.minLevel), e.maxLevel && (n += "&maxLevel=" + e.maxLevel), e.showSearch && (n += "&showSearch=" + e.showSearch), e.max && (n += "&max=" + e.max), e.personnels && (n += "&selecteds=" + encodeURIComponent(JSON.stringify(e.personnels))), 0 < n.length && (n = "?" + n.substring(1));
+    var t = "/#/personnel/selection" + n;
+    return "localhost" !== location.hostname && (t = "/beegrid/h5" + t), window.native.openForResult(t)
+}, window.native.personnelSelectionByRegion = function (e) {
+    var n = "";
+    void 0 === e && (e = {}), e.auth && (n += "&auth=" + e.auth), e.minLevel && (n += "&minLevel=" + e.minLevel), e.maxLevel && (n += "&maxLevel=" + e.maxLevel), e.showSearch && (n += "&showSearch=" + e.showSearch), e.max && (n += "&max=" + e.max), e.personnels && (n += "&selecteds=" + encodeURIComponent(JSON.stringify(e.personnels))), 0 < n.length && (n = "?" + n.substring(1));
+    var t = "/#/personnel/selection/region" + n;
+    return "localhost" !== location.hostname && (t = "/beegrid/h5" + t), window.native.openForResult(t)
+}, window.native.personnelSelectionByOrganization = function (e) {
+    var n = "";
+    void 0 === e && (e = {}), e.auth && (n += "&auth=" + e.auth), e.minLevel && (n += "&minLevel=" + e.minLevel), e.maxLevel && (n += "&maxLevel=" + e.maxLevel), e.showSearch && (n += "&showSearch=" + e.showSearch), e.max && (n += "&max=" + e.max), e.personnels && (n += "&selecteds=" + encodeURIComponent(JSON.stringify(e.personnels))), 0 < n.length && (n = "?" + n.substring(1));
+    var t = "/#/personnel/selection/organization" + n;
+    return "localhost" !== location.hostname && (t = "/beegrid/h5" + t), window.native.openForResult(t)
+}, window.native.personnelSelectionByRole = function (e) {
+    var n = "";
+    void 0 === e && (e = {}), e.max && (n += "&max=" + e.max), e.personnels && (n += "&selecteds=" + encodeURIComponent(JSON.stringify(e.personnels))), 0 < n.length && (n = "?" + n.substring(1));
+    var t = "/#/personnel/selection/role" + n;
+    return "localhost" !== location.hostname && (t = "/beegrid/h5" + t), window.native.openForResult(t)
+}, window.native.regionSelection = function (e) {
+    var n = "";
+    void 0 === e && (e = {}), e.auth && (n += "&auth=" + e.auth), e.minLevel && (n += "&minLevel=" + e.minLevel), e.maxLevel && (n += "&maxLevel=" + e.maxLevel), e.showSearch && (n += "&showSearch=" + e.showSearch), e.regionCode && (n += "&selectedCode=" + e.regionCode), 0 < n.length && (n = "?" + n.substring(1));
+    var t = "/#/region/selection" + n;
+    return "localhost" !== location.hostname && (t = "/beegrid/h5" + t), window.native.openForResult(t)
+}, window.native.organizationSelection = function (e) {
+    var n = "";
+    void 0 === e && (e = {}), e.auth && (n += "&auth=" + e.auth), e.minLevel && (n += "&minLevel=" + e.minLevel), e.maxLevel && (n += "&maxLevel=" + e.maxLevel), e.showSearch && (n += "&showSearch=" + e.showSearch), e.organizationCode && (n += "&selectedCode=" + e.organizationCode), 0 < n.length && (n = "?" + n.substring(1));
+    var t = "/#/organization/selection" + n;
+    return "localhost" !== location.hostname && (t = "/beegrid/h5" + t), window.native.openForResult(t)
+}, window.native.addEventListener = function (e, n) {
+    window.native.eventMap.has(e) || window.native.eventMap.set(e, n), window.native.executedMethod(e, "addEventListener")
+}, window.native.clearEventListener = function (e) {
+    window.native.eventMap.has(e) || window.native.eventMap.delete(e), window.native.executedMethod(e, "clearEventListener")
+}, window.native.executedMethod = function (e, n) {
+    return window.native.isIos() ? window.native.executeIOSMethod(e, n) : window.native.isAndroid() ? window.native.executeAndroidMethod(e, n) : (console.log("非手机浏览器"), !1)
+}, window.native.executedMethodCallback = function (e, n) {
+    return window.native.isIos() ? window.native.executeIOSMethodCallbackAsync(e, n) : window.native.isAndroid() ? window.native.executeAndroidMethodCallback(e, n) : void console.log("非手机浏览器")
+}, window.native.executedMethodCallbackAsync = function (e, n, t) {
+    return window.native.isIos() ? window.native.executeIOSMethodCallbackAsync(e, n, t) : window.native.isAndroid() ? window.native.executeAndroidMethodCallbackAsync(e, n, t) : void console.log("非手机浏览器")
+}, window.native.executeAndroidMethod = function (e, n) {
+    return window.android[n] ? (null != e ? window.android[n](e) : window.android[n](), !0) : (console.log("Android未有提供[" + n + "]方法"), !1)
+}, window.native.executeAndroidMethodCallback = function (t, i) {
+    return new Promise(function (e, n) {
+        try {
+            if (window.android[i])
+                if (null != t) e(window.android[i](t));
+                else e(window.android[i]());
+            else console.log("Android未有提供[" + i + "]方法"), n("Android未有提供[" + i + "]方法")
+        } catch (e) {
+            n(e)
+        }
+    })
+}, window.native.executeAndroidMethodCallbackAsync = function (e, t, n) {
+    var i = new MessageChannel,
+        o = "nativeCallBack";
+    return void 0 !== n && n && (o = n), window[o] = function (e) {
+        i.port1.postMessage(e)
+    }, window.android[t] ? (void 0 !== n && n ? window.android[t](e, n) : window.android[t](e), new Promise(function (t, e) {
+        i.port2.onmessage = function (e) {
+            var n = e.data;
+            t(n), i = null, window[o] = null
+        }
+    })) : (console.log("Android未有提供[" + t + "]方法"), new Promise(function (e, n) {
+        n("Android未有提供[" + t + "]方法")
+    }))
+}, window.native.executeIOSMethod = function (e, n) {
+    return window.webkit.messageHandlers[n] ? (window.webkit.messageHandlers[n].postMessage(e), !0) : (console.log("IOS未有提供[" + n + "]方法"), !1)
+}, window.native.executeIOSMethodCallbackAsync = function (e, t, n) {
+    var i = new MessageChannel,
+        o = "nativeCallBack";
+    if (void 0 !== n && n && (o = n), window[o] = function (e) {
+            i.port1.postMessage(e)
+        }, window.webkit.messageHandlers[t]) {
+        if (void 0 !== n && n) {
+            var a = {
+                parameters: e,
+                callback: n
+            };
+            window.webkit.messageHandlers[t].postMessage(a)
+        } else window.webkit.messageHandlers[t].postMessage(e);
+        return new Promise(function (t, e) {
+            i.port2.onmessage = function (e) {
+                var n = e.data;
+                t(n), i = null, window[o] = null
+            }
+        })
+    }
+    return console.log("IOS未有提供[" + t + "]方法"), new Promise(function (e, n) {
+        n("IOS未有提供[" + t + "]方法")
+    })
+}, window.native.isAndroid = function () {
+    return /(Android)/i.test(navigator.userAgent)
+}, window.native.isIos = function () {
+    return /(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent)
+};
