@@ -1,0 +1,57 @@
+//连接多项内容的代理
+import Vue from 'vue'
+
+export default {
+  data () {
+    return {
+      systemInfo: {},
+      iframeId: ''
+    }
+  },
+  watch: {
+    systemInfo (systemInfo) {
+      if (systemInfo) {
+        Vue.prototype.$adoPremiseStore.commit('mfcBaseInfo/setBaseInfo', systemInfo)
+        if (this.loadWidget) {
+          this.loadWidget()
+        }
+      }
+    }
+  },
+  created () {
+    this.iframeId = location.href.split('?')[1].split('iframeId=')[1].split('&')[0]
+    const self = this
+    window.addEventListener('message', (e) => {
+      if (e.data && typeof (e.data) === 'string' && e.data.indexOf('{') > -1) {
+        let acceptEventParam = JSON.parse(e.data)
+        if (!self.iframeId || acceptEventParam.iframeId != self.iframeId) {
+          return
+        }
+
+        if (acceptEventParam.actionName === 'post-module-config') {
+          if (acceptEventParam.data) {
+            for (let key in acceptEventParam.data) {
+              self[key] = acceptEventParam.data[key]
+            }
+          }
+        }
+
+        if (acceptEventParam.actionName === 'post-module-data') {
+          if (acceptEventParam) {
+            for (let key in acceptEventParam) {
+              self[key] = acceptEventParam[key]
+            }
+          }
+        }
+      }
+    })
+  },
+  beforeMount () {
+    let param = {
+      actionName: 'post-module-config',
+      iframeId: this.iframeId,
+      data: {}
+    }
+    top.postMessage(JSON.stringify(param), '*')
+  }
+}
