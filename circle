@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .circle {
+            width: 80px;
+            height: 80px;
+            border: 4px solid #e2edfa;
+            border-radius: 50%;
+            line-height: 80px;
+            text-align: center;
+            position: relative;
+        }
+
+        .circle-bottom {
+            position: absolute;
+            width: 50px;
+            bottom: -5px;
+            right: 50%;
+            line-height: 16px;
+            transform: translateX(50%);
+            background-color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="circle">
+        <span>87</span>
+        <div class="circle-bottom">得分</div>
+    </div>
+    <script>
+        let circle = document.getElementsByClassName('circle')[0];
+        
+    </script>
+</body>
+
+</html>
