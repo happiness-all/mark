@@ -100,3 +100,33 @@ git merge temp合并
                 }
             }()
 mobile-detect.js文件夹是什么
+vue报错Error in mounted hook: “TypeError: Object(...) is not a function“表示的问题就是引入的文件不是函数，但是被当作函数使用
+vuex中getters相当于vue中的computed
+vue 报错 Invaild default value for prop ‘x’：
+props with type Obect/Array must use a factory
+function to return the default value;
+解决办法：
+default：()=>[]；
+大屏适配:1.用vh、vw实现流式布局；
+如果保证始终一屏展示的需借助rem、并监听resize事件
+window.addEventListener('resize', this.setRootFS)
+git 命令 解压文件夹
+gzip bigScreenWeb-dev.tar.gz –d
+tar -xvf xx.tar
+js-base64是js通用的base64解码编译插件；
+一定要拜读js高级程序设计书和代码整洁之道-vue.js深入浅出等书籍
+Computed和watch中的变量名能不能相同，在vuex中的值想不相同；
+For循环中使用break
+  for (let i = 0; i < state.dataDashboardList.length; i++) {
+                if(state.sonConfigSelectItem.classifyCode == state.dataDashboardList[i].classifyCode){
+                    for(let j = 0; j < state.dataDashboardList[i].catalogList.length; j++) {
+                        if(state.dataDashboardList[i].catalogList[j].catalogId == state.sonConfigSelectItem.catalogListItemAcitve.catalogId) {
+                            state.dataDashboardListSelect = state.dataDashboardList[i].catalogList[j] && state.dataDashboardList[i].catalogList[j].valueArray || []
+                            break
+                        }
+                    }
+                    break
+                }
+            }
+You may have an infinite update loop in a component render function
+报错没有解决
