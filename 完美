@@ -1,0 +1,11 @@
++ function(doc, win) {
+  var docEle = doc.documentElement;
+  var resizeEvt = 'orientationchange' in win ? 'onrientationchange' : 'resize';
+  var recale = function() {
+    var deviceWidth = docEle.getBoundingClientRect().width;
+    docEle.style.fontSize = deviceWidth / 375 * 20 + 'px';
+  };
+  win.addEventListener(resizeEvt, recale, false);
+  doc.addEventListener('DOMContentLoaded', recale, false);
+}(document, window)
+//这是一个很完美的刷新fontSize
