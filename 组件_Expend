@@ -1,0 +1,71 @@
+<template>
+	<div class="expend-wrapper">
+		<div class="expend-header">
+    	<slot name="header-left"></slot>
+    	<slot name="header-right"></slot>
+			<span class="expend-icon" :class="isActive" @click="toggle">
+				<i class="icon icon-expend"></i>
+				{{expand}}
+			</span>
+		</div>
+		<div class="expend-content" v-show="isShow">
+    	<slot></slot>
+		</div>
+	</div>
+</template>
+
+<script>
+
+export default {
+	props: {
+		
+	},
+	data () {
+		return {
+			isShow: false,
+			expand: '展开'
+		}
+	},
+	computed: {
+		isActive () {
+			return this.isShow ? 'active' : '';
+		}
+	},
+	methods: {
+		toggle () {
+			this.isShow = !this.isShow;
+			if(this.isShow){
+				this.expand = '收起'
+			}else {
+				this.expand = '展开'
+			}
+		}
+  }
+}
+</script>
+
+<style  lang="less" rel="stylesheet/less">
+@import '../../assets/const.less';
+.expend-wrapper {
+	.expend-header {
+		display: flex;
+		font-size: @14pw;
+		justify-content: space-between;
+
+		.expend-icon {
+			color: @fontColor9;
+			font-size: @14pw;
+			cursor: pointer;
+			.icon-expend {
+				transition: .3s all;
+			}
+		}
+		.expend-icon.active {
+			.icon-expend {
+				transform: rotate(180deg);
+			}
+		}
+	}
+}
+
+</style>
