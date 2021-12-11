@@ -1,0 +1,271 @@
+<template>
+  <div class="input input-tree-wrapper">
+    <input :placeholder="placeholder"
+           readonly
+           v-model="learnRange_copy"
+           style="width: 100%;"
+           ref="treeInput"
+           type="text"
+           class="input"
+           name=""
+           :title="learnRange_copy"
+           @blur="leaveTree"
+           @click="treeShow=true">
+           <i class="arrow el-input__icon el-icon-arrow-up" :class="{'open': treeShow}"></i>
+    <div v-show="treeShow"
+         class="el-select-dropdown" @mouseover="inPop=true" @mouseout="leavePop">
+      <div class="tree-wrap">
+        <!-- @keydown="searchArea" -->
+        <el-input
+          type="text"
+          class="regions-tree-search"
+          :placeholder="'请输入区域名称'"
+          v-model="filterText"
+          @keyup.enter="searchArea"
+        ></el-input>
+        <i class="el-icon-search regions-search-icon"></i>
+        <el-tree ref="tree"
+                 :data="dataList"
+                 class="input-tree"
+                 show-checkbox
+                 node-key="areaCode"
+                 :default-checked-keys="defaultCheckedKeys"
+                 :default-expanded-keys="defaultExpandeKeys"
+                 :props="props">
+          <!-- @node-expand="check"
+        @current-change="check" -->
+          <!-- :default-expanded-keys="[2, 3]" -->
+        </el-tree>
+      </div>
+
+      <div class="btn-wrap">
+        <span class="tree-btn tree-btn-submit" @click="submitFunc">确认</span>
+        <span class="tree-btn tree-default-btn" @click="cancelFunc">取消</span>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { mapActions } from 'vuex'
+import { debounce } from '@/util/util'
+
+export default {
+  props: {
+    label: '',
+    nodeKey: '',
+    placeholder: '',
+    dataList: {
+      type: Array,
+      default () {
+        return [{
+          areaCode: '',
+          areaName: '',
+          childrens: []
+        }]
+      }
+    },
+    load: {
+      type: Function,
+      default: () => { }
+    },
+    defaultChecked: {
+      type: Array,
+      default: () => []
+    }
+  },
+  // directives: { Clickoutside },
+  data () {
+    return {
+      inPop: false,
+      treeShow: false,
+      checkList: [],
+      props: {
+        label: 'areaName',
+        children: 'childrens'
+      },
+      learnRange_copy: '',
+      checkedTempArr: [], // 处理临时
+      defaultCheckedKeys: [],
+      defaultExpandeKeys: [],
+      filterText: ''
+    }
+  },
+  computed: {
+  },
+  watch: {
+    '$route': {
+      handler (val) {
+        if (!val.query || (val.query && !val.query.studyId)) {
+          this.filterText = ''
+          this.learnRange_copy = ''
+        }
+      },
+      immediate: true
+    }
+  },
+  mounted () {
+    this.defaultCheckedKeys = this.defaultChecked.map(item => item['areaCode'])
+    this.defaultExpandeKeys = []
+    this.defaultChecked.forEach(element => {
+      let arr = element.areaPath.split(',')
+      this.defaultExpandeKeys = this.defaultExpandeKeys.concat(arr)
+    })
+    this.checkList = this.defaultChecked
+    this.checkedTempArr = this.defaultChecked
+    let arr = this.defaultChecked.map(item => item['areaName'])
+    this.learnRange_copy = arr.join('，')
+
+    this.$watch('filterText', debounce((newQuery) => {
+      this.filterText = newQuery
+      this.searchArea()
+    }, 1000))
+  },
+  methods: {
+    ...mapActions(['getAreaList']),
+    leavePop () {
+      this.$refs.treeInput.focus()
+      this.inPop = false
+    },
+    leaveTree () {
+      if (!this.inPop) {
+        this.cancelFunc()
+      }
+    },
+    // 确定
+    submitFunc () {
+      let arr1 = this.$refs.tree.getCheckedNodes()
+      let arr2 = this.$refs.tree.getCheckedKeys()
+      let arr3 = []
+      this.checkList = []
+      arr1.forEach(element => {
+        if (!arr2.includes(element.parentCode)) {
+          this.checkList.push(element)
+          arr3.push(element.areaName)
+        }
+      })
+      this.checkedTempArr = this.checkList
+      this.learnRange_copy = arr3.join('，')
+      this.treeShow = false
+      this.$emit("checkRegion", this.checkList)
+    },
+
+    // 取消
+    cancelFunc () {
+      // this.checkList = this.checkedTempArr
+      this.$refs.tree.setCheckedNodes(this.checkedTempArr)
+      this.treeShow = false
+    },
+    handleClickOutside () {
+      this.treeShow = false;
+    },
+    getAllChecked () {
+      return this.checkList
+    },
+    searchArea () {
+      let areaQuery = {
+        parentId: '',
+        keyword: this.filterText
+      }
+      this.getAreaList(areaQuery)
+    }
+  }
+}
+</script>
+
+<style scoped lang="less" rel="stylesheet/less">
+.input.input-tree-wrapper{
+  position: relative;
+  .el-select-dropdown{
+   padding:10px 0 !important;
+}
+.el-tree-node__content{
+  padding-left:10px !important;
+}
+  .input{
+    cursor: pointer;
+    padding: 0 30px 0 15px;
+  }
+  .el-input {
+  width: 100% !important;
+  padding:10px 20px !important;
+  
+}
+ 
+  .arrow{
+    position: absolute;
+    top: 50%;
+    right: 4px;
+    transform: translateY(-50%) rotateZ(180deg);
+    transition: all 0.3s;
+    height: 14px;
+    line-height: 14px;
+    color: #C0C4CC;
+  }
+  .arrow.open{
+    transform: translateY(-50%) rotateZ(0deg);
+  }
+}
+// tree-wrap
+.input-tree {
+  max-height: 180px;
+  min-height: 60px;
+  overflow-y: scroll;
+  padding-left:10px;
+}
+.btn-wrap {
+  padding-top: 10px;
+  // margin-right: 20px;
+  margin-top: 10px;
+  border-top: 1px solid #ddd;
+  height: 20px;
+  text-align: right;
+}
+.tree-default-btn,
+.tree-btn {
+  background: #fff;
+  border-radius: 2px;
+  padding: 0;
+  height: 20px;
+  line-height: 20px;
+  color: #00aaff;
+  text-align: center;
+  float: right;
+  margin-left: 15px;
+  border: none;
+  box-sizing: border-box;
+  cursor: pointer;
+ 
+}
+
+.tree-default-btn {
+  background: #fff;
+  color: #999999;
+}
+ .tree-btn-submit{
+    margin-right:20px;
+  }
+.regions-tree-search {
+  padding: 10px;
+  box-sizing: border-box;
+  border-bottom: 1px solid #dcdfe6;
+  font-size: 12px;
+}
+
+.regions-search-icon {
+  position: absolute;
+  // right: 20px;
+  // top: 17px;
+  right: 40px;
+  top: 33px;
+  z-index: 2;
+  color: #666;
+}
+
+
+</style>
+<style >
+
+
+</style>
+
