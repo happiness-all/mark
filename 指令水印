@@ -1,0 +1,49 @@
+export default function(Vue) {
+  function initWatermark(el, binding) {
+    let { text, width = 190, height = 190, rotate = -15 } = binding.value;
+    if (!text) {
+      return;
+    }
+    let elWatermark = document.querySelector("#watermark");
+    if (elWatermark) {
+      elWatermark.parentElement.removeChild(elWatermark);
+    }
+    let can = document.createElement("canvas");
+    can.width = width;
+    can.height = height;
+    let cans = can.getContext("2d");
+    cans.rotate((-15 * Math.PI) / 180);
+    cans.font = "12px Vedana";
+    cans.fillStyle = "#666666";
+    cans.textAlign = "start";
+    cans.textBaseline = "middle";
+    cans.fillText(text, 0, 50);
+    cans.fillText(text, 30, 130);
+    
+    let div = document.createElement("watermark");
+    div.id = "watermark";
+    div.style.pointerEvents = "none";
+    div.style.top = 0;
+    div.style.left = 0;
+    div.style.opacity = 0.3;
+    div.style.position = "absolute";
+    div.style.zIndex = 100000;
+    div.style.width = "100%";
+    div.style.height = el.offsetHeight + "px";
+    div.style.background =
+      "url(" + can.toDataURL("image/png") + ") left top repeat";
+
+    el.append(div);
+  }
+  Vue.directive("watermark", {
+    inserted: initWatermark,
+    componentUpdated: initWatermark,
+  });
+  
+}
+
+在main.js中注册使用， 然后 引入
+  waterMark: {
+        text: "",
+      }, 
+      <div v-watermark="waterMark"></div>
