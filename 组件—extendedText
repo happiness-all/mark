@@ -1,0 +1,117 @@
+<template>
+	<div class="expend-text-wrapper" :class="isEllipsis">
+		<p class="top-text" ref="topNode" :class="{'expend-all': this.expend,...isEllipsis}">{{text}}</p>
+		<p class="bottom-text ellipsis-clamp">{{text}}</p>
+		<span v-if="ellipsis" class="btn-text" @click="expendText">{{btnText}}</span>
+	</div>
+</template>
+
+<script>
+
+export default {
+	props: {
+		text: {
+			type: String,
+			default: ''
+		},
+	},
+	data () {
+		return {
+			expend: false,
+			ellipsis: false,
+		}
+	},
+
+	watch: {
+		expend (n) {
+			
+		},
+		text () {
+			this.expend = false;
+			this.ellipsis = false;
+			this.$nextTick(() => {
+				this.judge();
+			})
+		}
+	},
+	mounted () {
+		this.judge();
+	},
+	computed: {
+		btnText () {
+			return this.expend ? '收起' : '展开'
+		},
+		isEllipsis () {
+			return {
+				'is-ellipsis': this.ellipsis
+			}
+		}
+	},
+	methods: {
+		judge () {
+			const height = parseInt(this.$refs.topNode.offsetHeight);
+			// debugger
+			if (height > 80) {
+				this.ellipsis = true;
+			} else {
+				this.ellipsis = false;
+			}
+		},
+		expendText () {
+			this.expend = !this.expend;
+		}
+  }
+}
+</script>
+
+<style  lang="less" rel="stylesheet/less">
+@import '../../assets/const.less';
+.expend-text-wrapper.is-ellipsis {
+	min-height: 80px;
+	p.bottom-text {
+		height: 80px;
+	}
+}
+.expend-text-wrapper {
+	position: relative;
+	width: 100%;
+	padding-bottom: 20px;
+
+	p {
+		// padding-right: 20px;
+		width: 100%;
+		line-height: 20px;
+		background: #fff;
+		word-break: break-all;
+	}
+	p.top-text {
+		position: relative;
+		z-index: 2;
+		overflow: hidden;
+		// width: calc(100% - 25px);
+	}
+	p.top-text.is-ellipsis {
+		height: 40px;
+	}
+	p.top-text.expend-all {
+		height: auto;
+	}
+	p.bottom-text {
+		position: absolute;
+		left: 0;
+		top: 0;
+		z-index: 1;
+		// width: calc(100% - 25px);
+	}
+	span.btn-text {
+		color: #35BBFF;
+		position: absolute;
+		bottom: 0;
+		right: 0;
+		// right: 28px;
+		z-index: 3;
+		cursor: pointer;
+	}
+}
+
+</style>
