@@ -1,0 +1,125 @@
+<template>
+  <div class="input input-datetime-wrapper">
+    <input
+      class="input"
+      v-model="time"
+      type="text"
+      readonly="true"
+      placeholder="选择时间"
+      name=""
+      ref="timeInput"
+      style="width: 100%"
+    />
+  </div>
+</template>
+
+<script>
+import moment from "moment";
+import laydate from "layui-laydate";
+
+import { getDateTime } from "@/lib/util";
+
+export default {
+  props: {
+    default: "2021-12-7 12:33:30",
+    type: {
+      type: String,
+      default: "datetime",
+    },
+    minDate: {
+      type: String,
+      default: moment().format("YYYY-MM-DD HH:mm:00"),
+    },
+  },
+  data() {
+    return {
+      time: "",
+    };
+  },
+  watch: {
+    minDate: {
+      immediate: true,
+      handler(newVal) {
+        if (this.laydateInstance) {
+          //   const dayjsInstance = dayjs(newVal);
+          const dayjsInstance = moment(newVal);
+          const year = dayjsInstance.year();
+          const month = dayjsInstance.month();
+          const date = dayjsInstance.date();
+          const hours = dayjsInstance.hour();
+          const minutes = dayjsInstance.minute();
+
+          this.laydateInstance.config.min = {
+            year,
+            month,
+            date,
+            hours,
+            minutes,
+            seconds: 0,
+          };
+        }
+      },
+    },
+    default: {
+      immediate: true,
+      handler(newVal) {
+        console.log(this.time);
+        this.time = newVal;
+      },
+    },
+  },
+  mounted() {
+    this.renderLayDate();
+  },
+  methods: {
+    renderLayDate() {
+      console.log(this.minDate);
+      this.laydateInstance = laydate.render({
+        elem: this.$refs.timeInput,
+        type: this.type,
+        trigger: "click",
+        min: this.minDate,
+        done: (time) => {
+          // 判断当前选择日期是否在可选日期范围内
+          if (!time) {
+            return (this.time = "");
+          }
+          if (moment(time).isBefore(moment(this.minDate))) {
+            this.clear();
+
+            return this.$message({
+              type: "warning",
+              message: "当前选择的日期不在考试时间范围内，请重新选择",
+            });
+          }
+
+          this.time = moment(time).format("YYYY-MM-DD HH:mm:00");
+          this.$emit("change", this.time);
+        },
+      });
+    },
+    inputClick() {
+      this.$refs.timeInput.click();
+    },
+    getTime(format) {
+      if (!this.time) return "";
+
+      if (format) {
+        return moment(this.time).moment(format);
+      }
+
+      return this.time;
+    },
+    clear() {
+      this.time = "";
+      this.$refs.timeInput.value = "";
+    },
+  },
+};
+</script>
+
+<style scoped lang="less" rel="stylesheet/less">
+.input-datetime-wrapper {
+  width: 100%;
+}
+</style>
