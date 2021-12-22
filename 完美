@@ -9,3 +9,30 @@
   doc.addEventListener('DOMContentLoaded', recale, false);
 }(document, window)
 //这是一个很完美的刷新fontSize
+axios部分
+const getData = (url) => {
+  const CancelToken = axios.CancelToken
+  const source = CancelToken.source();
+  const fn = (param = {}) => {
+    if (fn.isFetching) { // 当上一个接口还没响应完成时，直接取消
+      source.cancel('Operation canceled by the user.')
+    }
+    fn.isFetching = true
+    return axios.get(url, {
+      ...param,
+      cancelToken: source.token
+    }).then((res) => {
+      fn.isFetching = false
+      return res
+    }).catch(function (thrown) {
+      fn.isFetching = false
+      if (axios.isCancel(thrown)) {
+       
+      } else {
+        // 处理错误
+      }
+    })
+  }
+  fn.isFetching = false
+  return fn
+}
