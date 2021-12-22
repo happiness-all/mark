@@ -1,0 +1,202 @@
+<template>
+<div class="creditRating">
+    <!-- <p class="canvas-test" :style="{ display:percent==0?'none':'block'}">{{percent}}</p> -->
+    <canvas class="arcBar" :key="new Date().valueOf()" :id="'rating' + circPath" width="160" height="150">
+    </canvas>
+    <div id="bange" :class="{ active: sorce == '-' }">
+        <!-- {{sorce?sorce:'-'}} -->
+        {{ sorce }}
+    </div>
+    <div class="descip">
+        得分
+    </div>
+</div>
+</template>
+
+<script>
+export default {
+    name: "CircRe",
+    props: ["circPath", "percent", "sorce"],
+    data() {
+        return {
+            canvas: null,
+            ctx: null,
+            circleX: 0, // 中心x坐标
+            circleY: 0, // 中心y坐标
+            radius: 65, // 圆环半径
+            lineWidth: 10, // 圆形线条的宽度
+            fontSize: 30, // 字体大小
+            num: 0,
+            process: 0.0, // 进度
+            circleLoading: null,
+            timeOut: null
+        };
+    },
+    created() {},
+    mounted() {
+        this.$nextTick(() => {
+            this.drawPercent();
+        });
+    },
+    methods: {
+        drawPercent() {
+            this.process = 0;
+            this.initContent();
+            this.circleLoading = setInterval(() => {
+                this.loading();
+            }, 16);
+        },
+        initContent() {
+            this.canvas = document.getElementById("rating" + this.circPath);
+            this.canvas.style.width = "0.6rem";
+            this.canvas.style.height = "0.56rem";
+            this.ctx = this.canvas.getContext("2d");
+            this.circleX = this.canvas.width / 2;
+            this.circleY = this.canvas.height / 2;
+        },
+        circle(cx, cy, r) {
+            this.ctx.beginPath();
+            this.ctx.lineWidth = 4;
+            this.ctx.strokeStyle = "rgba(0, 0, 0,.25)";
+            this.ctx.arc(cx, cy, r + 2, Math.PI * 0.75, Math.PI * 2.25);
+            this.ctx.stroke();
+        },
+        text() {
+            // 数字
+            this.ctx.fillStyle = "#fff";
+            this.ctx.font = "0.26rem PT Sans";
+            let drewPercent = this.percent * 100;
+            drewPercent % 100 == 0 ?
+                (drewPercent = parseFloat(drewPercent / 100).toFixed(0)) :
+                null;
+            drewPercent % 10 == 0 ?
+                (drewPercent = parseFloat(drewPercent / 100).toFixed(1)) :
+                (drewPercent = parseFloat(drewPercent / 100).toFixed(2));
+            var numWidth = this.ctx.measureText(drewPercent).width;
+            this.ctx.fillText(
+                drewPercent,
+                this.circleX - numWidth / 2,
+                this.circleY + 10
+            );
+        },
+        // 画里面的弧线
+        circleLine(cx, cy, r) {
+            this.ctx.lineWidth = "0.18rem";
+            // var R = 105;
+            this.ctx.beginPath();
+            this.ctx.lineWidth = 1;
+            // this.ctx.strokeStyle = "rgba(0,0,0,.15)";
+            this.ctx.strokeStyle = "#ffffff";
+            this.ctx.arc(cx, cy, r + 9, Math.PI * 0.75, Math.PI * 2.25);
+            this.ctx.stroke();
+        },
+        sector(cx, cy, r, startAngle, endAngle, anti) {
+            this.ctx.beginPath();
+            this.ctx.lineWidth = this.lineWidth;
+
+            // 渐变色 - 可自定义
+            let linGrad = this.ctx.createLinearGradient(
+                this.circleX,
+                this.circleY - this.radius - this.lineWidth,
+                this.circleX,
+                this.circleY + this.radius + this.lineWidth
+            );
+            linGrad.addColorStop(0, "rgb(25,129,255)");
+            linGrad.addColorStop(0.5, "rgb(58,173,254)");
+            linGrad.addColorStop(1, "rgb(54,153,255)");
+            this.ctx.strokeStyle = linGrad;
+            // 圆弧两端的样式
+            //   this.ctx.lineCap = "round";
+            // 圆弧
+            this.ctx.arc(
+                cx,
+                cy,
+                r,
+                startAngle,
+                endAngle * (Math.PI / 180.0) + Math.PI * 0.75
+            );
+            this.ctx.stroke();
+        },
+        loading() {
+            if (this.process >= this.percent) {
+                clearInterval(this.circleLoading);
+            }
+            // 清除canvas内容
+            this.ctx.clearRect(0, 0, this.circleX * 2, this.circleY * 2);
+
+            // 弧圆
+            this.circle(this.circleX, this.circleY, this.radius);
+            // 里面的弧线
+            this.circleLine(this.circleX, this.circleY, this.radius);
+            // 圆弧
+            this.sector(
+                this.circleX,
+                this.circleY,
+                this.radius,
+                Math.PI * 0.75,
+                (this.process / 100) * 270
+            );
+
+            // this.text();
+            // 控制结束时动画的速度
+            if (this.process / this.percent > 0.9) {
+                this.process += 0.3;
+            } else if (this.process / this.percent > 0.8) {
+                this.process += 0.55;
+            } else if (this.process / this.percent > 0.7) {
+                this.process += 0.75;
+            } else {
+                this.process += 1.0;
+            }
+        }
+    }
+};
+</script>
+
+<style lang="less" scoped>
+.creditRating {
+    /* position: relative; */
+    height: 100%;
+    margin-top: 0.1rem;
+
+    #bange {
+        /* position: absolute; */
+        width: 0.56rem;
+        color: #00aaff;
+        font-size: 0.12rem;
+        margin-top: -0.38rem;
+        text-align: center;
+        margin-left: 0.02rem;
+    }
+
+    .active {
+        color: #666666 !important;
+    }
+}
+
+.arcBar {
+    display: block;
+    margin: 0;
+    background-image: url("../../../assets/images/dian.png") center 0.08rem no-repeat;
+    background-size: 79% 72%;
+}
+
+.canvas-test {
+    font-size: 0.2rem;
+    color: #fff;
+    text-align: center;
+    position: absolute;
+    width: 100%;
+    background-color: transparent;
+    bottom: 0;
+    margin: 0;
+}
+
+.descip {
+    font-size: 0.12rem;
+    color: #666666;
+    /* position: absolute; */
+    margin-top: 0.07rem;
+    /* margin-left: 0.19rem; */
+}
+</style>
