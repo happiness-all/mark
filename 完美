@@ -36,3 +36,14 @@ const getData = (url) => {
   fn.isFetching = false
   return fn
 }
+//一个popup的插件
+export default function(Vue) {
+    let MyPopup = Vue.extend(Popup)
+    Vue.prototype.$basicGridInfo_popup = function(data) {
+        let instance = new MyPopup({data}).$mount()
+        document.body.appendChild(instance.$el)
+        Vue.nextTick(() => {
+            instance.show = true
+        })
+    }
+}
