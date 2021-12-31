@@ -16,3 +16,5 @@ a文件下载
             type: 'error'
           });
         }
+非特殊字符问题的正则表达式
+export const nameChartReg = /^[-A-Za-z0-9_\u4e00-\u9fa5]*$/
