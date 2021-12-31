@@ -78,3 +78,16 @@ export default {
 <style scoped lang="less" rel="stylesheet/less">
 @import "../../assets/const.less";
 </style>
+公共popup的PC端
+import Popup from './index.vue'
+
+export default function(Vue) {
+    let MyPopup = Vue.extend(Popup)
+    Vue.prototype.$basicGridInfo_popup = function(data) {
+        let instance = new MyPopup({data}).$mount()
+        document.body.appendChild(instance.$el)
+        Vue.nextTick(() => {
+            instance.show = true
+        })
+    }
+}
