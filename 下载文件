@@ -1,0 +1,18 @@
+a文件下载
+        if(res.status === 200 || res.status === 201) {
+          let stream = res.data; // 后端用stream返回Excel文件
+          let blob = new Blob([stream]);
+          const downloadElement = document.createElement('a');
+          const href = URL.createObjectURL(blob); // 创建下载的链接
+          downloadElement.href = href;
+          downloadElement.download = '网格信息表模板.xlsx'; // 下载后文件名
+          document.body.appendChild(downloadElement);
+          downloadElement.click(); // 点击下载
+          document.body.removeChild(downloadElement); // 下载完成移除元素
+          URL.revokeObjectURL(href); // 释放掉blob对象
+        }else {
+          this.$notify({
+            title: '下载失败',
+            type: 'error'
+          });
+        }
