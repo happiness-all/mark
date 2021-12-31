@@ -18,3 +18,22 @@ a文件下载
         }
 非特殊字符问题的正则表达式
 export const nameChartReg = /^[-A-Za-z0-9_\u4e00-\u9fa5]*$/
+其他下载文件的方法
+let fileDownload = require("js-file-download");
+ if (res.data.type == 'application/json') {
+    var reader = new FileReader();
+    reader.readAsText(res.data, 'utf-8')
+    reader.onload = function (e) {
+      window._xvueElementUI.Message({
+        type: 'error',
+        message: JSON.parse(reader.result).returnMessage,
+      })
+    }
+  } else {
+  //真正的下载文件的代码
+    let content = res.headers['content-disposition']
+    let fileName = content.split(";")[1]
+    fileName = Base64.decode(fileName.substr(10, fileName.length))
+    return fileDownload(res.data, fileName, '', undefined, onlyUrl)
+  }
+          
