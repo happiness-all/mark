@@ -1,0 +1,1 @@
+el-tree组件使用@check-change事件多次触发的问题 改成@check事件
