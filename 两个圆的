@@ -1,0 +1,311 @@
+<template>
+  <div class="content">
+    <div class="circle" :id="nodeId"></div>
+    <img class="active-img" :src="pieData.activeImg" v-if="pieData.isActive" alt="">
+    <!-- 增加一个副本，实现鼠标手 -->
+    <div class="circleCopy"></div>
+  </div>
+</template>
+
+<script>
+import echarts from 'echarts';
+import activeGreen from './images/active-green.png'
+console.log(echarts)
+export default {
+  props:{
+    nodeId:{
+      type:String,
+      default:'test0'
+    },
+    pieData:{
+      type:Array,
+      default:()=>([{
+        title:'激活量',
+        value:50,
+        bgc:'#070B2C',    //整个的背景色
+        colorFrom:'rgba(14,221,156,1)',     //圆环主体->使用渐变色，渐变色的开始
+        colorTo:'rgba(14,221,156,0.36)',       //圆环主体->使用渐变色，渐变色的结束
+        circleLineColorFrom:'rgba(14,221,156,0.36)',     //细圆环->使用渐变色，渐变色的开始
+        circleLineColorTo:'rgba(14,221,156,0.36)',       //细圆环->使用渐变色，渐变色的结束
+        isActive:false,     //是否激活状态，激活状态要展示一些效果
+        activeImg:activeGreen,       //处于激活状态时的圆环下面的 高亮光晕图片
+        circleColorFrom:'rgba(14,221,156,0.36)',     //里面的内圈->使用渐变色，渐变色的开始
+        circleColorTo:'rgba(14,221,156,0.36)',     //里面的内圈->使用渐变色，渐变色的结束
+      }])
+    }},
+  data(){
+    return{
+      option:{},    //echarts的配置项option
+      mycharts:'',    //echarts对象
+      titleArr:[],    //echarts圆形的的标题
+      seriesArr:[],     //echarts里的设置项
+    }
+  },
+  watch:{
+    'pieData.isActive'(val){
+      console.log(val)
+      this.changeActive(val);
+    },
+  },
+  mounted(){
+    // 通过控制一个圆饼的展示区域，即某一部分的展示出来的圆环， 然后用一个和背景色相同 且 弧度与展示的大小均和圆环相同的分割线组成的圆环；
+    // 将两者进行重叠，就有了需要的效果；所以下面注释中要求数据一样的地方一定要保持一致
+    this.titleArr.push({
+      text: this.pieData[0].title,
+      left: 50 - this.pieData[0].title.length * 1.5 + '%',
+      top: '0%',
+      textAlign: 'center',
+      textStyle: {
+        fontWeight: 'normal',
+        fontSize: '14',
+        color: '#8293BF',
+      },
+    });
+    // 这里添加的是分割线
+    this.seriesArr.push(
+      {
+        type: 'gauge',
+        radius: '85%',  //分割线从圆环的多少位置开始，要和下面的radius数组值的最大值匹配
+        clockwise: true,
+        startAngle: '90',
+        endAngle: '-269.9999',
+        splitNumber: 33,    //分隔成多少块--分割线的数量
+        detail: {
+          formatter: ' ',
+        },
+        zlevel: 3,
+        center: ['50%', '61%'],   //第一个值为横向的位置，第二个为纵向的位置,要和下面的center的值相匹配
+        pointer: {
+          show: false,
+        },
+        axisLine: {
+          show: false,
+        },
+        axisTick: {
+          show: false,
+        },
+        splitLine: {
+          show: true,
+          length: 9,
+          lineStyle: {
+            color: '#070B2C',   //分割线的颜色，和canvas的背景色一致
+            width: 4,   //分隔线的宽度
+          },
+        },
+        axisLabel: {
+          show: false,
+        },
+      } //中间环形分割线
+    );
+    // 这里添加的是圆环
+    this.seriesArr.push(
+      // 外层的细圆环
+      {
+         type: 'pie',
+         name: '外层细圆环',
+         radius: ['94%', '96%'],
+         center: ['50%', '61%'],
+         hoverAnimation: false,
+         clockWise: false,
+         itemStyle: {
+          normal: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              {
+                offset:0,
+                color:this.pieData[0].circleLineColorFrom,
+              },
+              {
+                offset: 1,
+                color: this.pieData[0].circleLineColorTo,
+              },
+            ]),
+          }
+         },
+         label: {
+             show: false
+         },
+         data: [100]
+     },
+    //  真正的圆环区
+      {
+        name: this.pieData[0].title,
+        type: 'pie',
+        clockWise: false,
+        radius: ['72%', '85%'],  //圆环的大小
+        itemStyle: {
+          normal: {
+            // 渐变控制
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              {
+                offset:0,
+                color:this.pieData[0].colorFrom,
+                // color:pieData.colorFrom,
+              },
+              {
+                offset: 1,
+                color: this.pieData[0].colorTo,
+                // color: pieData.colorTo,
+              },
+            ]),
+            label: {
+              show: false,
+            },
+            labelLine: {
+              show: false,
+            },
+          },
+        },
+        hoverAnimation: false,
+        center: ['50%', '61%'],
+        // 圆环中的内容设置
+        data: [
+          {   //显示的圆环的内容
+            value: this.pieData[0].value,
+            label: {
+              normal: {
+                formatter: function (params) {
+                  return params.value;    //圆环中展示的值
+                },
+                position: 'center',
+                show: true,
+                textStyle: {
+                  fontSize: '18',
+                  // fontWeight: 'bold',
+                  color: '#fff',
+                },
+              },
+            },
+          },
+          {   //隐藏的圆环内容
+            value: 100 - this.pieData[0].value,
+            // value: 100 - pieData.value,
+            name: 'invisible',  
+            itemStyle: {
+              normal: {
+                color: this.pieData[0].bgc,
+                // color: pieData.bgc,
+              },
+              emphasis: {
+                color: this.pieData[0].bgc,
+                // color: pieData.bgc,
+              },
+            },
+          },
+        ],
+      },
+      // 内层的细圆环
+      {
+        type: 'pie',
+        name: '内层细圆环',
+        radius: ['61%', '63%'],
+        center: ['50%', '61%'],
+        hoverAnimation: false,
+        clockWise: false,
+        itemStyle: {
+          normal: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              {
+                offset:0,
+                color:this.pieData[0].circleLineColorFrom,
+              },
+              {
+                offset: 1,
+                color: this.pieData[0].circleLineColorTo,
+              },
+            ]),
+          }
+        },
+        label: {
+            show: false
+        },
+        data: [100]
+      },
+    );
+    this.option = {
+      grid: {
+        left: '5%',
+        right: '2%',
+        bottom: '0%',
+        top: '0%',
+        containLabel: true,
+      },
+      backgroundColor: this.pieData[0].bgc,
+      title: this.titleArr,
+      series: this.seriesArr,
+    };
+    let chartDom = document.getElementById(this.nodeId);
+    this.myChart = echarts.init(chartDom);
+    this.option && this.myChart.setOption(this.option);
+  },
+  methods:{
+    // 切换选中状态
+    changeActive(isActive){
+      // 取消选中
+      if(!isActive){
+        // 只保留前面4个设置项：外圆环、圆环主体、隐藏的圆环、内圆环
+        this.seriesArr.splice(4)
+      }else{
+        this.seriesArr.push(
+          {
+            type: 'pie',
+            name: '内层的圆',
+            radius: ['0%', '61%'],
+            center: ['50%', '61%'],
+            hoverAnimation: false,
+            clockWise: false,
+            itemStyle: {
+              normal: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                  {
+                    offset:0,
+                    color:this.pieData[0].circleColorFrom,
+                  },
+                  {
+                    offset: 1,
+                    color: this.pieData[0].circleColorTo,
+                  },
+                ]),
+              }
+            },
+            label: {
+                show: false
+            },
+            data: [100]
+          },
+        )
+      }
+      this.option.series = this.seriesArr;
+      console.log(this.option)
+      // 这里的true一定要加上，不然会保留上一次的渲染结果
+      this.myChart.setOption(this.option,true);
+    }
+  }
+}
+</script>
+
+<style lang="less" scoped>
+
+.content{
+  position: relative;
+  width: 200px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  .circle{
+    margin:0 auto;
+    width: 118px;
+    height: 145px;
+    cursor: pointer;
+  }
+  .circleCopy{
+    position: absolute;
+    width: 118px;
+    height: 145px;
+    left: (200px - 118px) / 2 / (1920px / 100vw);
+    cursor: pointer;
+  }
+  .active-img{
+    width: 200px;;
+  }
+}
+</style>
