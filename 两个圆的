@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import echarts from 'echarts';
+const echarts = require('echarts')
 import activeGreen from './images/active-green.png'
 console.log(echarts)
 export default {
