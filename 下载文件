@@ -37,3 +37,13 @@ let fileDownload = require("js-file-download");
     return fileDownload(res.data, fileName, '', undefined, onlyUrl)
   }
           
+记得要修改请求中的一个属性
+    // 下载所有文件
+  downLoadAllFile(data) {
+    return window._xvueAxios({
+      method: 'post',
+      url: BASE_URL+'/v1/grid/file/downLoadAllFile',
+      data,
+      responseType: 'blob'
+    })
+  }
