@@ -47,3 +47,24 @@ let fileDownload = require("js-file-download");
       responseType: 'blob'
     })
   }
+  
+  下载文件
+  export const handleDownload = (res,fileName) => {
+  const blob = res.data;
+  let reader = new FileReader()
+  console.log(blob)
+  reader.readAsDataURL(blob)
+  if ('download' in document.createElement('a')) { //非ie下载
+    reader.onload=(e)=>{
+      let a = document.createElement('a')
+    
+      a.download = `${fileName}.zip`
+      a.href = e.target.result
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    }
+  }else{
+    navigator.msSaveOrOpenBlob(blob, `${fileName}.zip`);
+  }
+}
