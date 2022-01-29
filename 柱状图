@@ -1,0 +1,104 @@
+<template>
+    <!-- 柱状图的使用还有待改进 -->
+    <div class="dayCompensation">
+        <div id='myChart' :style="{  width: '100vw',
+  height: '300px'}"></div>
+    </div>
+</template>
+
+<script>
+
+export default {
+    components: {
+
+    },
+    props: {
+        tab: {
+            type: String,
+            default: 'dayCompensation'
+        }
+    },
+    data() {
+        return {
+            tipStatus: true
+        }
+    },
+    mounted() {
+        console.log(this.$echarts)
+        this.drawLine()
+    },
+    methods: {
+        drawLine() {
+            let dataSerions = [5, 20, 36, 10, 15, 21, 20, 3, 12, 15, 16, 17, 23, 34]
+            let myChart = this.$echarts.init(document.getElementById('myChart'))
+            myChart.setOption({
+                tooltip: {
+                    trigger: 'axis'
+                },
+                title: {},
+                xAxis: {
+                    data: ["a", "b", "c", "d", "e", "f", "g", 'h', 'i', 'j', 'k', 'l', 'm', 'n'],
+                },
+                yAxis: {
+                    axisLabel: {
+                        color: '#999'
+                    },
+                    axisLine: {
+                        show: true
+                    }
+                },
+                series: [{
+                    type: 'bar',
+                    itemStyle: {
+                        color: new this.$echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#2695ff' },
+                            { offset: 0.5, color: '#39acff' },
+                            { offset: 1, color: '#45bbff' }
+                        ])
+                    },
+                    data: dataSerions,
+                }],
+                dataZoom: [
+                    {
+                        height: 0,
+                        type: 'slider',
+                        xAxisIndex: [0],
+                        start: 0,//数据窗口范围的起始百分比0-100
+                        end: 60,//数据窗口范围的结束百分比0-100
+                        width: '70%',
+                        bottom: 10,
+                        left: 'center',
+                        moveHandleSize: 10,
+                        moveHandleStyle: {
+                            borderCap: 'round',
+                            color: {
+                                type: 'linear',
+                                x: 1,
+                                y: 0,
+                                x2: 0,
+                                y2: 0,
+                                colorStops: [{
+                                    offset: 0, color: '#44baff' // 0% 处的颜色
+                                }, {
+                                    offset: 1, color: '#1880ff' // 100% 处的颜色
+                                }],
+                                global: false // 缺省为 false
+                            }
+                        },
+                        borderColor: '#FFF',
+                        // borderRadius: 5,
+                        showDataShadow: false, //是否显示数据阴影 默认auto
+                        showDetail: false, //即拖拽时候是否显示详细数值信息 默认true
+                        textStyle: {
+                            color: 'transparent'
+                        },
+                        handleSize: 0
+                    }
+                ]
+            })
+        }
+    }
+}
+</script>
+<style lang="less" scoped>
+</style>
