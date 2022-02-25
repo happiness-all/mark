@@ -1,0 +1,120 @@
+只需要转移笔记的
+现在使用less的时候不需要vue.use引用了
+    "less": "^4.1.2",
+    "less-loader": "^5.0.0",  
+未做的使用
+	el-select小图标控制显示显出问题，可以把input的层级提交 z-index 提至最高；
+	又是一个特殊的rem.js
+	 
+	(function(doc, win) {
+	  var docEl = doc.documentElement,
+	      isIOS = navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/),
+	      dpr = isIOS ? Math.min(win.devicePixelRatio, 3) : 1,
+	      dpr = window.top === window.self ? dpr : 1, //?iframe????????
+	      dpr = 1,
+	      scale = 1 / dpr,
+	      resizeEvt = 'orientationchange' in window ? 'orientationchange' : 'resize';
+	  docEl.dataset.dpr = dpr;
+	  var metaEl = doc.createElement('meta');
+	  metaEl.name = 'viewport';
+	  metaEl.content = 'initial-scale=' + scale + ',maximum-scale=' + scale + ', minimum-scale=' + scale;
+	  docEl.firstElementChild.appendChild(metaEl);
+	  var recalc = function() {
+	      var width = docEl.clientWidth;
+	      if (width / dpr > 720) {
+	          width = 720 * dpr;
+	      }
+	      // ??100?px : rem = 100 : 1
+	      docEl.style.fontSize = 100 * (width / 720) + 'px';
+	  };
+	  recalc()
+	  if (!doc.addEventListener) return;
+	  win.addEventListener(resizeEvt, recalc, false);
+	})(document, window);
+	
+	
+	let r = href.split("?")[1].match(reg);
+	  getQueryValue(queryName) {
+	    let origin = window.location.href;
+	    let markNum = origin.indexOf('?')
+	    let afterUrl = origin.substring(markNum + 1);
+	    let urlObj = {};
+	    if (afterUrl.indexOf('&') > -1) {
+	      let urlArr = afterUrl.split('&');
+	      for (let i = 0; i < urlArr.length; i++) {
+	        var urlArr2 = urlArr[i].split('=');
+	        urlObj[urlArr2[0]] = [urlArr2[1]]
+	      }
+	    }
+	    let queryValue = '';
+	    if (urlObj[queryName]) {
+	      queryValue = window.decodeURIComponent(urlObj[queryName]);
+	    }
+	    return queryValue
+	  }
+	  window.ado.singleSignOn = function () {
+	    return new Promise((resolve, reject) => {
+	      resolve(testJson)
+	    })
+	  };
+	提交状态是由后端的submitStatus控制的
+	本来是这样的
+	        if (val < 6) {
+	          if (this.userPermisson == 1) {
+	            this.isShowSubmit = false;
+	          } else if (
+	            this.userPermisson == 2 &&
+	            this.tableData &&
+	            this.tableData.length > 0 &&
+	            index.length == 0
+	          ) {
+	            this.isShowSubmit = true;
+	          } else if (
+	            this.userPermisson == 2 &&
+	            this.tableData &&
+	            this.tableData.length == 0
+	          ) {
+	            this.isShowSubmit = true;
+	          } else {
+	            this.isShowSubmit = false;
+	          }
+	        } else {
+	          this.isShowSubmit = false;
+	        }
+	多页面应用
+	let pages = {};
+	const pageNames = fs.readdirSync(path.resolve(__dirname, './src/pages'));
+	pageNames.forEach(key => {
+	  pages[key] = {
+	    // page 的入口
+	    entry: `./src/pages/${key}/main.js`,
+	    // 模板来源
+	    template: './public/index.html',
+	    // 生成的文件名
+	    filename: key === 'index' ? `${key}.html` : `${key}`,
+	    isProd: process.env.NODE_ENV === 'production'
+	  }
+	});
+module.exports = {
+  // 将baseUrl: '/api',改为baseUrl: '/',
+  publicPath: './',
+  // 如果你不需要生产环境的 source map，可以将其设置为 false 以加速生产环境构建。
+  productionSourceMap: false,
+  // 多页面
+  pages: pages,
+}
+import * as getters from './getters'
+
+框架为vue-cli 3.0以上的版本
+ 问题 vue-router 4.0 版本不会用啊
+怎么分离出element-ui自带的icon图标
+el-tree组件使用@check-change事件多次触发的问题 改成@check事件
+promise多个then的执行结果，防抖和节流函数
+flow：none 当前元素不伸缩
+['',null,undefined].includes(item) 不合法值校验
+window.parent.postMessage(params.'*")
+Vue.extends的使用
+自定义组件上写的v-model有默认属性和事件 默认读取的value 监听的是input事件
+在vue项目中id永远是唯一的，不同的canvas需获取不同的id
+  height: calc(~"100% - 44px");
+less的使用方式  混合  类名+()
