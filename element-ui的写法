@@ -1,0 +1,11 @@
+button的失焦
+     let target = e.target;
+      if(target.nodeName=='SPAN'||target.nodeName=='I'){
+        target=e.target.parentNode
+      };
+      target.blur()
+      ；
+上传文件
+uploader
+  action="#"
+  :http-request="exportIn" 用http-request替代原先的action上传
