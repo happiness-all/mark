@@ -1,3 +1,0 @@
-1.借助input的属性
-this.$refs.fileInput.click()
-<input type="file" style="display: none" accept="application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" name="file" @change="handleFileChange" ref="fileInput">
