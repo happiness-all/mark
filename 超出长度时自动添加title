@@ -1,0 +1,37 @@
+export default {
+  directives: {
+    // 超出长度时自动添加title
+    autoTitle: {
+      inserted(el) {
+        const width = el.clientWidth; // 容器宽度
+        const text = el.innerHTML; // 内容
+        const span = document.createElement('span');
+        span.innerHTML = text;
+        span.setAttribute('id', 'the_span_user_to_cacl_width');
+        span.style.position = 'absolute';
+        span.style.visibility = 'hidden';
+        el.appendChild(span);
+        const textWidth = document.getElementById('the_span_user_to_cacl_width').offsetWidth; // 内容宽度
+        if (textWidth > width) {
+          el.title = text;
+        }
+        el.removeChild(span);
+      },
+      componentUpdated(el) {
+        const width = el.clientWidth; // 容器宽度
+        const text = el.innerHTML; // 内容
+        const span = document.createElement('span');
+        span.innerHTML = text;
+        span.setAttribute('id', 'the_span_user_to_cacl_width');
+        span.style.position = 'absolute';
+        span.style.visibility = 'hidden';
+        el.appendChild(span);
+        const textWidth = document.getElementById('the_span_user_to_cacl_width').offsetWidth; // 内容宽度
+        if (textWidth > width) {
+          el.title = text;
+        }
+        el.removeChild(span);
+      }
+    }
+  },
+}
