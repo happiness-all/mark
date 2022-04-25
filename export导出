@@ -25,3 +25,10 @@ function downloadBlob(blob, fileName) {
     navigator.msSaveOrOpenBlob(blob, fileName);
   }
 } 
+注意点：
+如果response 的content-type 是response 的时候 请使用上面的方法
+如果不是的话 请使用 let filename = res.headers['content-disposition'].split(';')[1];
+            let name = filename.split('=')[1];
+            let blob = new Blob([res.data]);
+            let url = URL.createObjectURL(blob); 
+            其他的一模一样
