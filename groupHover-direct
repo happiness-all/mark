@@ -1,0 +1,27 @@
+let fun = null;
+
+export default {
+  inserted: function(el, binding) {
+    fun = dom => {
+      return e => {
+        if (e.target === dom || dom.contains(e.target)) {
+          // 移入
+          if (!dom.className.includes('bb_item_box_hover')) {
+            dom.className = `${dom.className} bb_item_box_hover`;
+          }
+        } else {
+          // 移出
+          if (dom.className.includes('bb_item_box_hover')) {
+            dom.className = dom.className.replace(/ bb_item_box_hover/g, '');
+          }
+        }
+      };
+    };
+    document.addEventListener('mouseover', fun(el), false);
+    document.addEventListener('mouseout', fun(el), false);
+  },
+  unbind(el) {
+    document.removeEventListener('mouseover', fun(el), false);
+    document.removeEventListener('mouseout', fun(el), false);
+  },
+};
