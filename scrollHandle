@@ -1,0 +1,20 @@
+export default {
+  inserted: function(el, binding) {
+    const step = binding.value;
+    let curTopTemp = 0;
+    const scrollFun = e => {
+      console.log('当前：', el.scrollTop);
+      console.log('缓存：', curTopTemp);
+      if (el.scrollTop === curTopTemp) {
+        return false;
+      } else if (el.scrollTop > curTopTemp) {
+        curTopTemp = curTopTemp + step;
+        el.scrollTop = curTopTemp;
+      } else if (el.scrollTop < curTopTemp) {
+        curTopTemp = curTopTemp - step;
+        el.scrollTop = curTopTemp;
+      }
+    };
+    el.addEventListener('scroll', scrollFun, false);
+  },
+};
