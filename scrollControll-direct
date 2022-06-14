@@ -1,0 +1,68 @@
+function stopDefault(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  else window.event.returnValue = false;
+  return false;
+}
+
+function checkScrollEnd(el, cb) {
+  let timer = null;
+  function check() {
+    let top = el.scrollTop;
+    timer = setInterval(() => {
+      if (el.scrollTop === top) {
+        timer && clearInterval(timer);
+        cb && cb();
+      } else {
+        top = el.scrollTop;
+      }
+    }, 5);
+  }
+  check();
+}
+
+export default {
+  inserted: function(el, binding) {
+    let prexTime = 0;
+    const step = binding.value;
+
+    /*
+     * let childHeight = 0;
+     * [].forEach.call(el.children, cl => {
+     *   childHeight = childHeight + cl.clientHeight;
+     * });
+     */
+    const scrollFun = e => {
+      if (el.clientHeight >= el.scrollHeight) return;
+      let curTop = el.scrollTop || 0;
+      if (!el.contains(e.target)) return;
+      const curTime = new Date().valueOf();
+      if (curTime - prexTime < 500) {
+        stopDefault(e);
+        return;
+      }
+      prexTime = curTime;
+      const num = e.wheelDelta || e.detail;
+      checkScrollEnd(el, () => {
+        console.log(num, el.scrollTop);
+        if (num > 0) {
+          // 滚轮向上，页面向下滚动
+          if (curTop - el.scrollTop >= step) {
+            curTop = curTop - step;
+          } else if (el.scrollTop === 0) {
+            curTop = 0;
+          }
+        } else if (num < 0) {
+          // 滚轮向下，页面向上滚动
+          if (el.scrollTop - curTop >= step) {
+            curTop = curTop + step;
+          } else if (el.scrollTop) {
+            curTop = el.scrollTop;
+          }
+        }
+        el.scrollTop = curTop;
+        console.log(num, el.scrollTop);
+      });
+    };
+    el.addEventListener('mousewheel', scrollFun, false);
+  },
+};
