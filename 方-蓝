@@ -1,0 +1,147 @@
+<template>
+  <div
+    class="bar-item"
+    :style="{
+      height: `${maxHeight}px`
+    }"
+  >
+    <div
+      class="bar-item-heightlight"
+      :style="{
+        height: `${currPercent}%`
+      }"
+    >
+      <div class="bar-left"></div>
+      <div class="bar-right"></div>
+      <div class="bar-top"></div>
+    </div>
+    <div
+      class="bar-item-bg"
+    >
+      <div class="bar-left"></div>
+      <div class="bar-right"></div>
+      <div class="bar-top"></div>
+    </div>
+
+    <div class="bar-item-footer">
+      <img
+        src="@/assets/images/blue-bottom.png"
+        alt=""
+      />
+    </div>
+  </div>
+</template>
+
+<script>
+import BarChart3dMixin from '@/components/barChart3d/mixins/BarChart3dMixin';
+export default {
+  name: 'BarChart3d',
+  mixins: [BarChart3dMixin],
+};
+</script>
+
+<style lang="less" scoped>
+@w: 28px;
+@w-light: 21px;
+
+.bar-item {
+  width: @w;
+  position: relative;
+  margin: 0 auto;
+}
+
+// 柱子高亮样式
+.bar-item-heightlight {
+  width: @w-light;
+  position: absolute;
+  left: (@w - @w-light) / 2;
+  bottom: 2px;
+  z-index: 9;
+
+  .bar-left,
+  .bar-right,
+  .bar-top {
+    height: 100%;
+    position: absolute;
+    top: 0;
+  }
+
+  .bar-left {
+    width: 50%;
+    left: 1%;
+    transform: skewY(30deg);
+    background-image: linear-gradient(180deg, #19D1E7 0%, #0F9FC8 100%);
+    box-shadow: inset 0px 0px 1px 0px rgba(0,255,255,0.71);
+  }
+
+  .bar-right {
+    width: 50%;
+    left: 49%;
+    transform: skewY(-30deg);
+    background-image: linear-gradient(180deg, #19A3E2 4%, #0C72AC 100%);
+    box-shadow: inset 0px 0px 2px 0px rgba(0,184,255,1);
+  }
+
+  .bar-top {
+    transform: rotateX(120deg) rotateY(0deg) rotateZ(45deg) translateZ(0.7rem) scale(0.69);
+    width: @w-light;
+    height: @w-light;
+    background-image: linear-gradient(180deg, #3ECBF0 0%, #32DFFA 100%);
+    box-shadow: inset 0px 0px 1px 0px rgba(155,255,255,1);
+    z-index: 9;
+  }
+}
+
+// 柱子背景
+.bar-item-bg {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+
+  .bar-left,
+  .bar-right,
+  .bar-top {
+    height: 100%;
+    position: absolute;
+    top: 0;
+  }
+
+  .bar-left {
+    width: 50%;
+    left: 0;
+    transform: skewY(30deg);
+    background: rgba(216, 216, 216, 0);
+    box-shadow: inset 0px 0px 10px 0px rgba(0, 189, 255, 0.15);
+  }
+
+  .bar-right {
+    width: 50%;
+    right: 0;
+    transform: skewY(-30deg);
+    background: rgba(216, 216, 216, 0);
+    box-shadow: inset 0px 0px 10px 0px rgba(0, 189, 255, 0.38);
+  }
+
+  .bar-top {
+    transform: rotateX(60deg) rotateY(0deg) rotateZ(45deg) translateZ(20px) scale(0.7);
+    width: @w;
+    height: @w;
+    background: rgba(216, 216, 216, 0);
+    box-shadow: inset 0px 0px 10px 0px rgba(0, 189, 255, 0.46);
+  }
+}
+
+// 底部底座
+.bar-item-footer {
+  width: 100%;
+  position: absolute;
+  bottom: -4px;
+  transform: scale(1.2);
+
+  img {
+    display: block;
+    width: 100%;
+    transform: scale(1.2);
+  }
+}
+</style>
