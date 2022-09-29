@@ -1,0 +1,10 @@
+        listener: function () {
+          if (this.$route.query.appCode && this.$route.query.clientCode) {
+            window.ado.close()
+          } else {
+            history.go(-1)
+          }
+        },
+         leftClick () {
+      this.leftOpt.listener.call(this)
+    },
