@@ -8,3 +8,30 @@
          leftClick () {
       this.leftOpt.listener.call(this)
     },
+水印的另一种表现形式
+export function generateMark (width, text, time) {
+  const height = 200
+  let res = ''
+  if (!time) {
+    time = getTimeStr()
+  }
+  const maskText = `${text} ${time}`
+  let canvasdom = document.createElement('canvas')
+  canvasdom.setAttribute('width', width)
+  canvasdom.setAttribute('height', height)
+  const ctx = canvasdom.getContext('2d')
+  ctx.clearRect(0, 0, width, height)
+  ctx.textBaseline = 'bottom'
+  ctx.textAlign = 'center'
+  ctx.fillStyle = '#000'
+  ctx.globalAlpha = 0.13
+  ctx.font = '16px -apple-system-font, Helvetica Neue, sans-serif'
+  ctx.rotate((Math.PI / 180) * - 30)
+  ctx.fillText(maskText, 125, height * 0.8)
+  res = {
+    'background-image': `url(${canvasdom.toDataURL()})`,
+    'background-repeat': 'repeat-y',
+  }
+  canvasdom = null
+  return res
+}
