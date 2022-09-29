@@ -1,0 +1,87 @@
+<template>
+  <div
+    class="bar-item"
+    :style="{
+      height: `${maxHeight}px`
+    }"
+  >
+    <div
+      class="bar-item-heightlight"
+      :style="{
+        height: `${currPercent}%`
+      }"
+    >
+    </div>
+    <div
+      class="bar-item-bg"
+    >
+    </div>
+  </div>
+</template>
+
+<script>
+import BarChart3dMixin from '@/components/barChart3d/mixins/BarChart3dMixin';
+export default {
+  name: 'BarChart3d',
+  mixins: [BarChart3dMixin],
+};
+</script>
+
+<style lang="less" scoped>
+@w: 28px;
+@w-light: @w * 0.6;
+
+.bar-item {
+  width: @w;
+  position: relative;
+  margin: 0 auto;
+}
+
+// 柱子高亮样式
+.bar-item-heightlight {
+  width: @w-light;
+  position: absolute;
+  left: @w * 0.2;
+  bottom: 2px;
+  background-image: linear-gradient(180deg, #3AD46D 0%, #199E8A 100%);
+  box-shadow: inset 0px 0px 4px 0px rgba(141,252,226,1);
+  border-radius: 0 0 @w / 2 @w / 2;
+  z-index: 9;
+
+  &::before {
+    position: absolute;
+    display: block;
+    top: -5px;
+    content: '';
+    width: 100%;
+    height: 9.5px;
+    background-image: linear-gradient(180deg, #55DE84 3%, #44E7B9 100%);
+    box-shadow: inset 0px 0px 5px 0px rgba(169,255,225,1);
+    border-radius: 50%;
+  }
+}
+
+// 柱子背景
+.bar-item-bg {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background: rgba(216, 216, 216, 0);
+  box-shadow: inset 0px -@w-light/2 14px 0px rgba(0, 255, 196, 0.27);
+  border-radius: 0 0 @w / 2 @w / 2;
+
+  &::before {
+    position: absolute;
+    display: block;
+    content: '';
+    width: 100%;
+    top: -@w-light / 2;
+    height: @w-light;
+    background-color: rgba(216,216,216,0.00);
+    background-image: url('../../../assets/images/green-top.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+  }
+}
+
+</style>
