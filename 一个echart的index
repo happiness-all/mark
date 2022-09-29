@@ -1,0 +1,396 @@
+import * as echarts from 'echarts';
+import { cloneDeep } from 'lodash/lang';
+
+// 绘制左侧面
+const wid = 10;
+const w1 = Math.sin(Math.PI / 6) * wid; // 4
+const w2 = Math.sin(Math.PI / 3) * wid; // 6.8
+const snapHeight = wid / 2;
+const CubeLeft = echarts.graphic.extendShape({
+  shape: {
+    x: 0,
+    y: 0,
+  },
+  buildPath: function (ctx, shape) {
+    const { xAxisPoint } = shape;
+    const c0 = [shape.x, shape.y];
+    const c1 = [shape.x - w2, shape.y];
+    const c2 = [shape.x - w2, xAxisPoint[1]];
+    const c3 = [shape.x, xAxisPoint[1]];
+    ctx.moveTo(c0[0], c0[1])
+      .lineTo(c1[0], c1[1])
+      .lineTo(c2[0], c2[1])
+      .lineTo(c3[0], c3[1])
+      .closePath();
+  },
+});
+
+// 绘制右侧面
+const CubeRight = echarts.graphic.extendShape({
+  shape: {
+    x: 0,
+    y: 0,
+  },
+  buildPath: function (ctx, shape) {
+    const { xAxisPoint } = shape;
+    const c1 = [shape.x, shape.y];
+    const c2 = [shape.x, xAxisPoint[1]];
+    const c3 = [shape.x + w1, xAxisPoint[1]];
+    const c4 = [shape.x + w1, shape.y - w2 + snapHeight];
+    ctx.moveTo(c1[0], c1[1])
+      .lineTo(c2[0], c2[1])
+      .lineTo(c3[0], c3[1])
+      .lineTo(c4[0], c4[1])
+      .closePath();
+  },
+});
+
+// 绘制顶面
+const CubeTop = echarts.graphic.extendShape({
+  shape: {
+    x: 0,
+    y: 0,
+  },
+  buildPath: function (ctx, shape) {
+    //
+    const c1 = [shape.x, shape.y];
+    const c2 = [shape.x + w1, shape.y - w2 + snapHeight]; // 右点
+    const c3 = [shape.x - w2 + w1, shape.y - w2 + snapHeight];
+    const c4 = [shape.x - w2, shape.y];
+    ctx.moveTo(c1[0], c1[1])
+      .lineTo(c2[0], c2[1])
+      .lineTo(c3[0], c3[1])
+      .lineTo(c4[0], c4[1])
+      .closePath();
+  },
+});
+
+// 三个面图形
+echarts.graphic.registerShape('CubeLeft', CubeLeft);
+echarts.graphic.registerShape('CubeRight', CubeRight);
+echarts.graphic.registerShape('CubeTop', CubeTop);
+
+/**
+ * 根据颜色组，返回立体柱形echarts渐变对象
+ * @param {[string,string]} gradientColor 立方柱左侧渐变
+ */
+const createLinearGradient = gradientColor => {
+  return new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+    {
+      offset: 0,
+      color: gradientColor[0],
+    },
+    {
+      offset: 1,
+      color: gradientColor[1],
+    },
+  ]);
+};
+
+/**
+ * 根据颜色组，返回立体柱形渲染函数
+ * @param {[string,string]} leftGradientColor 立方柱左侧渐变
+ * @param {[string,string]} rightGradientColor 立方柱右侧渐变
+ * @param {[string,string]} topGradientColor 立方柱顶部侧渐变
+ * @returns function
+ */
+const renderItem = (leftGradientColor, rightGradientColor, topGradientColor) => {
+  return (params, api) => {
+    const location = api.coord([api.value(0), api.value(1)]);
+    const xlocation = api.coord([api.value(0), 0]);
+    const shape = {
+      api,
+      xValue: api.value(0),
+      yValue: api.value(1),
+      x: location[0],
+      y: location[1],
+      xAxisPoint: xlocation,
+    };
+    return {
+      type: 'group',
+      shape,
+      style: {
+        fill: null,
+      },
+      children: [
+        {
+          type: 'CubeLeft',
+          shape,
+          style: {
+            fill: createLinearGradient(leftGradientColor),
+          },
+        },
+        {
+          type: 'CubeRight',
+          shape,
+          style: {
+            fill: createLinearGradient(rightGradientColor),
+          },
+        },
+        {
+          type: 'CubeTop',
+          shape,
+          style: {
+            fill: createLinearGradient(topGradientColor),
+          },
+        },
+      ],
+    };
+  };
+};
+export const option = {
+  animation: false,
+  grid: [
+    {
+      show: false,
+      top: '16%',
+      right: 10,
+      height: '32%',
+    },
+    {
+      show: false,
+      top: '48%',
+      right: 10,
+      height: '32%',
+    },
+  ],
+  xAxis: [
+    {
+      axisTick: { show: false },
+      type: 'category',
+      axisLine: {
+        show: false,
+      },
+      axisLabel: {
+        show: false,
+      },
+      data: [], // 占位
+    },
+    {
+      gridIndex: 1,
+      data: [], // 占位
+      axisLine: {
+        show: false,
+      },
+      splitLine: {
+        show: false,
+      },
+      axisTick: {
+        show: false,
+      },
+      axisLabel: {
+        show: true,
+        margin: 14,
+        color: '#779BC9',
+      },
+    },
+  ],
+  yAxis: [
+    {
+      type: 'value',
+      interval: 50,
+      min: 0,
+      max: 100,
+      splitLine: {
+        lineStyle: {
+          color: '#22E3B866', // 占位
+          width: 1,
+        },
+      },
+      axisLabel: {
+        formatter: function (value) {
+          return `${value}%`;
+        },
+      },
+    },
+    {
+      gridIndex: 1,
+      type: 'value',
+      interval: 50,
+      min: -100,
+      max: 0,
+      splitLine: {
+        lineStyle: {
+          color: '#1FB2E166', // 占位
+          width: 1,
+        },
+      },
+      axisLabel: {
+        formatter: function (value) {
+          return `${-value}%`;
+        },
+      },
+    },
+  ],
+  legend: {
+    show: false,
+    data: ['本网', '异网'], // 占位
+    top: 0,
+    right: '20',
+    textStyle: {
+      color: '#fff',
+    },
+    itemWidth: 12,
+    itemHeight: 10,
+    selectedMode: false,
+  },
+  series: [
+    {
+      type: 'bar',
+      itemStyle: {
+        color: 'transparent',
+      },
+      barWidth: 10,
+      xAxisIndex: 0,
+      yAxisIndex: 0,
+      barCategoryGap: 10,
+      data: [65, 43, 75, 15, 85, 95],
+      label: {
+        show: true, // 开启显示
+        position: 'top', // 在上方显示
+        textStyle: { // 数值样式
+          color: '#fff',
+          fontSize: 12,
+          fontWeight: 300,
+        },
+        formatter: '{c}%',
+      },
+    },
+    {
+      name: '本网',
+      itemStyle: {
+        color: '#22e4b9',
+      },
+      type: 'custom',
+      label: {
+        show: true, // 开启显示
+        position: 'bottom', // 在上方显示
+        textStyle: { // 数值样式
+          color: '#fff',
+          fontSize: 12,
+          fontWeight: 300,
+        },
+      },
+      renderItem: renderItem(
+        ['#24EBBF', '#02644E'],
+        ['#0A8368', '#a5ffec'],
+        ['#036953', '#036953'],
+      ),
+      color: 'blue',
+      data: [65, 43, 75, 15, 85, 95],
+    },
+    {
+      type: 'bar',
+      itemStyle: {
+        color: 'transparent',
+      },
+      xAxisIndex: 1,
+      yAxisIndex: 1,
+      barWidth: 10,
+      barGap: -1,
+      barCategoryGap: 10,
+      data: [-65, -83, -75, -95, -22, -73],
+      label: {
+        show: true, // 开启显示
+        position: 'bottom', // 在上方显示
+        textStyle: { // 数值样式
+          color: '#fff',
+          fontSize: 12,
+          fontWeight: 300,
+        },
+        formatter: function ({ value }) {
+          return `${-value}%`;
+        },
+      },
+    },
+    {
+      type: 'custom',
+      name: '异网',
+      itemStyle: {
+        color: '#ffa000',
+      },
+      label: {
+        show: true, // 开启显示
+        position: 'bottom', // 在上方显示
+        textStyle: { // 数值样式
+          color: '#fff',
+          fontSize: 12,
+          fontWeight: 300,
+        },
+      },
+      renderItem: renderItem(
+        ['#32D5FF', '#0861A4'],
+        ['#053651', '#053650'],
+        ['#41C0EE', '#41C0EE'],
+      ),
+      color: 'blue',
+      data: [-65, -83, -75, -95, -22, -73],
+    },
+  ],
+};
+
+/**
+ * 创建正负交叉轴的选项
+ * @param category 坐标刻度：分类
+ * @param legendData 图例数据
+ * @param topData 顶部数据
+ * @param bottomData 底部数据
+ * @param theme 主题：green或者yellow
+ */
+export const createCrossBarOption = (category, legendData, topData, bottomData, theme = 'green') => {
+  const currentOption = cloneDeep(option);
+  currentOption.xAxis[0].data = category;
+  currentOption.xAxis[1].data = category;
+
+  // 上下参考线
+  let upSplitLineColor = '#22E3B866';
+  let downSplitLineColor = '#1FB2E166';
+  if (theme === 'yellow') {
+    upSplitLineColor = '#FFA00066';
+    downSplitLineColor = '#39EEEF66';
+  }
+  currentOption.yAxis[0].splitLine.lineStyle.color = upSplitLineColor;
+  currentOption.yAxis[1].splitLine.lineStyle.color = downSplitLineColor;
+
+  // 设置图例
+  currentOption.legend.data = legendData;
+  [currentOption.series[1].name, currentOption.series[3].name] = legendData;
+  currentOption.series[1].itemStyle.color = upSplitLineColor.substring(0, upSplitLineColor.length - 2);
+  currentOption.series[3].itemStyle.color = downSplitLineColor.substring(0, upSplitLineColor.length - 2);
+
+  // 设置立体渐变
+  if (theme === 'green') {
+    currentOption.series[1].renderItem = renderItem(
+      ['#24EBBF', '#02644E'],
+      ['#036953', '#036953'],
+      ['#0A8368', '#a5ffec'],
+    );
+    currentOption.series[3].renderItem = renderItem(
+      ['#32D5FF', '#0861A4'],
+      ['#053651', '#053650'],
+      ['#41C0EE', '#41C0EE'],
+    );
+  } else {
+    currentOption.series[1].renderItem = renderItem(
+      ['#FCA610', '#C04A38'],
+      ['#C24D37', '#652A1B'],
+      ['#fac46a', '#fac46a'],
+    );
+    currentOption.series[3].renderItem = renderItem(
+      ['#3AF5F4', '#1E7F9D'],
+      ['#053651', '#053651'],
+      ['#3de8eb', '#3de8eb'],
+    );
+  }
+
+  currentOption.series = currentOption.series.map((item, index) => {
+    if (index < 2) { // 前两个轴赋顶部数据，下两个轴赋底部数据
+      item.data = topData;
+    } else {
+      item.data = bottomData.map(i => -i);
+    }
+    return item;
+  });
+
+  return currentOption;
+};
