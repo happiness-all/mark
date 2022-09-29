@@ -1,0 +1,167 @@
+<template>
+  <div class="chart-container">
+    <div
+      ref="chart"
+      class="chart"
+    ></div>
+  </div>
+</template>
+
+<script>
+import ChartResizeMixin from '@/mixins/ChartResizeMixin';
+import { getPie3D } from './js/util';
+
+export default {
+  name: 'PieBar3d',
+  mixins: [ChartResizeMixin],
+  props: {
+    // 指标值
+    indexValues: {
+      type: Array,
+      default: () => [],
+    },
+
+    colorLists: {
+      type: Array,
+      default: () => ['#69E1F1', '#F98955', '#00FF61', '#2152BE'],
+    },
+
+    config: {
+      type: Object,
+      default: () => ({
+        // 空心占比
+        emptyRate: 0.6,
+
+        // 视图距离，可调节大小
+        distance: 150,
+
+        // 倾斜角度
+        rotate: 30,
+
+        // 柱形高度
+        h: 8,
+
+        // 透明度
+        opacity: 1,
+
+        // 饼图占比高度是否统一
+        sameHeight: true,
+
+        // 顶部偏移，用于可用于内容上下居中
+        offsetTop: -15,
+      }),
+    },
+  },
+  data () {
+    return {
+      optionData: [],
+      statusChart:null,
+      option:{
+        tooltips: {
+          show: false,
+        },
+      },
+    };
+  },
+  watch: {
+    indexValues: {
+      deep: true,
+      handler() {
+        this.initDatas();
+        this.setLabel();
+        this.initChart();
+      },
+    },
+  },
+  mounted () {
+    this.statusChart = this.$echarts.init(this.$refs.chart);
+
+    this.initDatas();
+    this.setLabel();
+    this.initChart();
+  },
+  beforeDestroy() {
+    this.statusChart.clear();
+    this.statusChart = null;
+  },
+  methods: {
+    initDatas() {
+      this.optionData = this.indexValues?.map(item => ({
+        name: item.indexAliasName,
+        value: item.indexValue ? Number(item.indexValue) : 0,
+      })) ?? [];
+    },
+
+    // 初始化label样式
+    setLabel () {
+      this.optionData.forEach((item, index) => {
+        item.itemStyle = {
+          color: this.colorLists[index],
+        };
+        item.label = {
+          normal: {
+            show: false,
+          },
+        };
+        item.labelLine = {
+          normal: {
+            show: false,
+          },
+        };
+      });
+    },
+
+    // 图表初始化
+    initChart () {
+      if (this.optionData.length === 0) {
+        return;
+      }
+      const { emptyRate, distance, rotate, h, opacity, sameHeight, offsetTop } = this.config;
+
+      // 传入数据生成 option, 构建3d饼状图, 参数工具文件已经备注的很详细
+      this.option = getPie3D(this.optionData, emptyRate, distance, rotate, h, offsetTop, opacity, sameHeight);
+
+      // 是否需要label指引线，如果要就添加一个透明的2d饼状图并调整角度使得labelLine和3d的饼状图对齐，并再次setOption
+      this.option.series.push({
+        name: '3dpie', // 自己根据场景修改
+        backgroundColor: 'transparent',
+        type: 'pie',
+        slient: true,
+        label: {
+          opacity: 1,
+          fontSize: 13,
+          lineHeight: 20,
+        },
+        startAngle: -40, // 起始角度，支持范围[0, 360]。
+        clockwise: false, // 饼图的扇区是否是顺时针排布。上述这两项配置主要是为了对齐3d的样式
+        radius: ['50%', '50%'],
+        center: ['10%', '50%'],
+        data: this.optionData,
+        itemStyle: {
+          opacity: 0, // 这里必须是0，不然2d的图会覆盖在表面
+        },
+      });
+
+      this.statusChart.setOption(this.option);
+    },
+
+    // 自适应宽高
+    changeSize () {
+      this.statusChart.resize();
+    },
+  },
+};
+</script>
+
+<style lang='less' scoped>
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  .chart {
+    width: 100%;
+    height: 100%;
+  }
+}
+</style>
